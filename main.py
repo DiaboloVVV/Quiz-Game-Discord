@@ -7,21 +7,22 @@ import random
 import asyncio
 
 
-@client.event
-async def on_ready():
-    await client.change_presence(activity=discord.Game('with magical ball'))
-    print('Has been logged in as {0.user}'.format(client))
-
 # CONFIG VARIABLES CHANGE ONLY THOSE ONES
 client = commands.Bot(command_prefix="!")
-win_id_role = 1
-message_id_to_follow = 1
+TOKEN = "YOUR_TOKEN_HERE"
+win_id_role =
+message_id_to_follow =
 emotes = ['✅']
 next_game_delay = 60
 channel_delete_delay = 5
 game_create_delay = 5
 # CONFIG VARIABLES CHANGE ONLY THOSE ONES
 
+
+@client.event
+async def on_ready():
+    await client.change_presence(activity=discord.Game('with magical ball'))
+    print('Has been logged in as {0.user}'.format(client))
 
 _cd = commands.CooldownMapping.from_cooldown(1, next_game_delay, commands.BucketType.member)
 
@@ -30,10 +31,13 @@ def get_ratelimit(message):
     return bucket.update_rate_limit()
 
 def questionData():
-    with open('questions.json') as question:
-        questions = json.load(question)
-    return questions
-
+    try:
+        with open('questions.json') as question:
+            questions = json.load(question)
+        return questions
+    except FileNotFoundError:
+        with open('questions.json', 'x') as file:
+            pass
 
 @client.event
 @commands.cooldown(1, next_game_delay, commands.BucketType.member)
@@ -123,14 +127,10 @@ async def on_raw_reaction_add(payload):
 
 
 @client.command()
-async def pyr(ctx):
-    data = questionData()
-    print(list(data)[-1])
-
-@client.command()
 @commands.has_permissions(administrator=True)
 async def addquestion(ctx):
     guild = ctx.guild
+    questionData()
     setupQuestions = [
         "What\'s the question?",
         "Please insert answer A",
@@ -231,4 +231,4 @@ async def questions(ctx):
     await ctx.channel.send(embed=e)
 
 
-client.run('YOUR_TOKEN')
+client.run(TOKEN)
